@@ -1,28 +1,31 @@
     # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
 
+
 class TennisGame1:
 
     def __init__(self, player1Name, player2Name):
-        self.player1 = Player(player1Name)
-        self.player2 = Player(player2Name)
+        self.chair_umpire = ChairUmpire(Player(player1Name), Player(player2Name))
         
     def won_point(self, playerName):
+        self.chair_umpire.annotate_point_for(playerName)
+
+    def score(self):
+        return self.chair_umpire.dictate_score()
+
+
+class ChairUmpire:
+    def __init__(self, player1, player2):
+        self.player1 = player1
+        self.player2 = player2
+    
+    def annotate_point_for(self, playerName):
         if playerName == self.player1.name:
             self.player1.add_point()
         else:
             self.player2.add_point()
-    
-    def _is_draw_result(self):
-        return self.player1.points == self.player2.points
 
-    def _is_regular_result(self):
-        return self.player1.points < 4 and self.player2.points < 4
-
-    def _is_advantage_result(self):
-        return abs(self.player1.points - self.player2.points) == 1
-
-    def score(self):
+    def dictate_score(self):
         if self._is_draw_result():
             return DrawScore().score(self.player1, self.player2)
         
@@ -33,11 +36,16 @@ class TennisGame1:
             return AdvantageScore().score(self.player1, self.player2)
             
         return WinScore().score(self.player1, self.player2)
+    
+    def _is_draw_result(self):
+        return self.player1.points == self.player2.points
 
+    def _is_regular_result(self):
+        return self.player1.points < 4 and self.player2.points < 4
 
-class Referee:
-    pass
-
+    def _is_advantage_result(self):
+        return abs(self.player1.points - self.player2.points) == 1
+        
 
 class Score(ABC):
     
@@ -87,4 +95,4 @@ class Player:
         self.points = 0
 
     def add_point(self):
-        self.points+=1
+        self.points += 1
